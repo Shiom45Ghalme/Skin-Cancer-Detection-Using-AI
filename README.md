@@ -56,3 +56,18 @@ This project implements a Convolutional Neural Network (CNN) using Transfer Lear
 
 ## 📁 Project Structure
 
+<img width="501" height="471" alt="image" src="https://github.com/user-attachments/assets/9e82d775-5740-4b0a-b0f5-03c40155dea7" />
+
+🎯 Your Project Features:
+Feature	Status
+Dataset	HAM10000 (10,015 images)
+Model Architecture	MobileNetV2 + Custom layers
+Accuracy	71.38%
+Precision	85.77%
+Recall	60.42%
+Classes	7 skin conditions
+Web Interface	✅ Fully functional
+CLI Tool	✅ Available
+Evaluation Tools	✅ Complete
+Documentation	✅ Professional
+
