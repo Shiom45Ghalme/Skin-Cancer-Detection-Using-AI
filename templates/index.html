@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Cancer Detection - AI Medical Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .disclaimer {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+        
+        .disclaimer h3 {
+            color: #856404;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .disclaimer p {
+            color: #856404;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        
+        .upload-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .upload-area {
+            border: 3px dashed #2a5298;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            grid-column: span 2;
+        }
+        
+        .upload-area:hover {
+            background: #f8f9ff;
+            border-color: #1e3c72;
+        }
+        
+        .upload-icon {
+            font-size: 3em;
+            color: #2a5298;
+            margin-bottom: 10px;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .preview-section {
+            text-align: center;
+            display: none;
+            grid-column: span 2;
+            margin: 20px 0;
+        }
+        
+        .preview {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            cursor: zoom-in;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(42, 82, 152, 0.4);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #2a5298;
+            display: none;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2a5298;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .result-header {
+            text-align: center;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .result-header.high-risk {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+        
+        .result-header.medium-risk {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            color: white;
+        }
+        
+        .result-header.low-risk {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        
+        .predicted-class {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .confidence {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        
+        .confidence-label {
+            font-size: 1em;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .risk-assessment {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .risk-assessment h3 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+        
+        .risk-item {
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid;
+            border-radius: 5px;
+            background: #f8f9fa;
+        }
+        
+        .risk-item.cancer {
+            border-color: #dc3545;
+        }
+        
+        .risk-item.precancer {
+            border-color: #ffc107;
+        }
+        
+        .risk-item.benign {
+            border-color: #28a745;
+        }
+        
+        .probabilities-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .probabilities-section h3 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+        }
+        
+        .prob-bar {
+            margin: 15px 0;
+        }
+        
+        .prob-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .bar-container {
+            background: #e9ecef;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .bar-fill {
+            height: 100%;
+            transition: width 0.8s ease-out;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .bar-fill.high { background: linear-gradient(90deg, #dc3545, #c82333); }
+        .bar-fill.medium { background: linear-gradient(90deg, #ffc107, #ff9800); }
+        .bar-fill.low { background: linear-gradient(90deg, #28a745, #20c997); }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            flex: 1;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .recommendations {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+            border-left: 4px solid #2a5298;
+        }
+        
+        .recommendations h3 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+        
+        .recommendations ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        
+        @media (max-width: 768px) {
+            .upload-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏥 Skin Lesion AI Analyzer</h1>
+        <p class="subtitle">Advanced Deep Learning System for Dermatological Assessment</p>
+    </div>
+    
+    <div class="container">
+        <div class="disclaimer">
+            <h3>⚠️ Important Medical Disclaimer</h3>
+            <p><strong>This tool is for educational and screening purposes only.</strong> The AI predictions should NOT replace professional medical diagnosis. Always consult a qualified dermatologist for accurate diagnosis and treatment. This system has 71.38% accuracy and should be used as a preliminary screening tool only.</p>
+        </div>
+        
+        <div class="upload-section">
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📸</div>
+                <p><strong>Upload Skin Lesion Image</strong></p>
+                <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+                    Click to select or drag & drop<br>
+                    Supported: JPG, PNG (Max 10MB)<br>
+                    Best results with clear, close-up images
+                </p>
+            </div>
+            
+            <input type="file" id="fileInput" accept="image/*">
+            
+            <div class="preview-section" id="previewSection">
+                <img id="preview" class="preview">
+            </div>
+        </div>
+        
+        <button id="predictBtn" class="btn" disabled>🔬 Analyze Skin Lesion</button>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p><strong>AI Analysis in Progress...</strong></p>
+            <p style="font-size: 0.9em; color: #666;">Processing image through neural network</p>
+        </div>
+        
+        <div class="results" id="results">
+            <div class="result-header" id="resultHeader">
+                <div class="predicted-class" id="predictedClass"></div>
+                <div class="confidence" id="confidence"></div>
+                <div class="confidence-label" id="confidenceLabel"></div>
+            </div>
+            
+            <div class="risk-assessment" id="riskAssessment"></div>
+            
+            <div class="probabilities-section">
+                <h3>📊 Detailed Probability Analysis</h3>
+                <div id="probabilities"></div>
+            </div>
+            
+            <div class="recommendations" id="recommendations"></div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="location.reload()">🔄 Analyze Another Image</button>
+                <button class="btn" onclick="downloadReport()">📄 Download Report</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const previewSection = document.getElementById('previewSection');
+        const predictBtn = document.getElementById('predictBtn');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        let selectedFile = null;
+        let predictionData = null;
+        
+        const lesionInfo = {
+            'Melanoma': { type: 'cancer', risk: 'high', color: 'high-risk' },
+            'Basal cell carcinoma': { type: 'cancer', risk: 'high', color: 'high-risk' },
+            'Actinic keratoses': { type: 'precancer', risk: 'medium', color: 'medium-risk' },
+            'Benign keratosis-like lesions': { type: 'benign', risk: 'low', color: 'low-risk' },
+            'Melanocytic nevi': { type: 'benign', risk: 'low', color: 'low-risk' },
+            'Dermatofibroma': { type: 'benign', risk: 'low', color: 'low-risk' },
+            'Vascular lesions': { type: 'benign', risk: 'low', color: 'low-risk' }
+        };
+        
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                selectedFile = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    previewSection.style.display = 'block';
+                    predictBtn.disabled = false;
+                    results.style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        predictBtn.addEventListener('click', async function() {
+            if (!selectedFile) return;
+            
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            
+            predictBtn.disabled = true;
+            loading.style.display = 'block';
+            results.style.display = 'none';
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                predictionData = data;
+                
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+                
+                displayResults(data);
+                
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                predictBtn.disabled = false;
+            }
+        });
+        
+        function displayResults(data) {
+            const info = lesionInfo[data.predicted_class];
+            const header = document.getElementById('resultHeader');
+            
+            // Set header style
+            header.className = 'result-header ' + info.color;
+            
+            // Display prediction
+            document.getElementById('predictedClass').textContent = data.predicted_class;
+            document.getElementById('confidence').textContent = data.confidence + '%';
+            
+            // Confidence label
+            let confLabel = '';
+            if (data.confidence >= 70) confLabel = 'High Confidence';
+            else if (data.confidence >= 50) confLabel = 'Moderate Confidence';
+            else confLabel = 'Low Confidence - Further examination recommended';
+            document.getElementById('confidenceLabel').textContent = confLabel;
+            
+            // Risk assessment
+            displayRiskAssessment(data.predicted_class, info);
+            
+            // Probabilities
+            displayProbabilities(data.all_probabilities);
+            
+            // Recommendations
+            displayRecommendations(info, data.confidence);
+            
+            results.style.display = 'block';
+            results.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function displayRiskAssessment(predictedClass, info) {
+            const riskDiv = document.getElementById('riskAssessment');
+            let html = '<h3>🔍 Medical Assessment</h3>';
+            
+            if (info.type === 'cancer') {
+                html += `
+                    <div class="risk-item cancer">
+                        <strong>⚠️ MALIGNANT LESION DETECTED</strong><br>
+                        This appears to be a potentially cancerous lesion. Immediate dermatologist consultation is strongly recommended.
+                    </div>
+                `;
+            } else if (info.type === 'precancer') {
+                html += `
+                    <div class="risk-item precancer">
+                        <strong>⚠️ PRE-CANCEROUS LESION DETECTED</strong><br>
+                        This lesion may develop into cancer. Schedule an appointment with a dermatologist for evaluation.
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="risk-item benign">
+                        <strong>✓ BENIGN LESION DETECTED</strong><br>
+                        This appears to be a non-cancerous lesion. However, routine check-ups are still recommended.
+                    </div>
+                `;
+            }
+            
+            riskDiv.innerHTML = html;
+        }
+        
+        function displayProbabilities(probs) {
+            const probDiv = document.getElementById('probabilities');
+            probDiv.innerHTML = '';
+            
+            // Sort by probability
+            const sorted = Object.entries(probs).sort((a, b) => b[1] - a[1]);
+            
+            sorted.forEach(([className, prob]) => {
+                const info = lesionInfo[className];
+                let barClass = 'low';
+                if (prob >= 40) barClass = 'high';
+                else if (prob >= 20) barClass = 'medium';
+                
+                probDiv.innerHTML += `
+                    <div class="prob-bar">
+                        <div class="prob-label">
+                            <span><strong>${className}</strong> ${info.type === 'cancer' ? '🔴' : info.type === 'precancer' ? '🟡' : '🟢'}</span>
+                            <span>${prob}%</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill ${barClass}" style="width: ${prob}%">
+                                ${prob > 10 ? prob + '%' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        function displayRecommendations(info, confidence) {
+            const recDiv = document.getElementById('recommendations');
+            let html = '<h3>💡 Medical Recommendations</h3><ul>';
+            
+            if (info.type === 'cancer') {
+                html += `
+                    <li><strong>Schedule an urgent appointment</strong> with a board-certified dermatologist</li>
+                    <li>Request a <strong>biopsy</strong> for definitive diagnosis</li>
+                    <li>Do NOT attempt self-treatment</li>
+                    <li>Document lesion changes with photographs</li>
+                    <li>Avoid excessive sun exposure until evaluation</li>
+                `;
+            } else if (info.type === 'precancer') {
+                html += `
+                    <li>Consult a dermatologist <strong>within 2-4 weeks</strong></li>
+                    <li>Monitor the lesion for any changes</li>
+                    <li>Use sunscreen (SPF 30+) daily</li>
+                    <li>Consider treatment options with your doctor</li>
+                `;
+            } else {
+                html += `
+                    <li>Routine dermatological check-ups annually</li>
+                    <li>Monitor for any changes in size, color, or shape</li>
+                    <li>Use sun protection regularly</li>
+                    <li>Document with periodic photographs</li>
+                `;
+            }
+            
+            if (confidence < 50) {
+                html += `<li><strong>⚠️ Low confidence prediction</strong> - Professional evaluation strongly recommended regardless of result</li>`;
+            }
+            
+            html += '</ul>';
+            recDiv.innerHTML = html;
+        }
+        
+        function downloadReport() {
+            if (!predictionData) return;
+            
+            const report = `
+SKIN LESION AI ANALYSIS REPORT
+================================
+
+Date: ${new Date().toLocaleString()}
+System: Skin Cancer Detection AI (71.38% Accuracy)
+
+ANALYSIS RESULTS:
+Predicted Condition: ${predictionData.predicted_class}
+Confidence Level: ${predictionData.confidence}%
+
+PROBABILITY BREAKDOWN:
+${Object.entries(predictionData.all_probabilities)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, prob]) => `${name}: ${prob}%`)
+    .join('\n')}
+
+DISCLAIMER:
+This AI analysis is for screening purposes only and should NOT replace
+professional medical diagnosis. Please consult a qualified dermatologist
+for accurate diagnosis and treatment recommendations.
+
+================================
+Generated by Skin Lesion AI Analyzer
+            `.trim();
+            
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `skin_lesion_report_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

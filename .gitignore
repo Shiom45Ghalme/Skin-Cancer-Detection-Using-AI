@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Model files (too large for GitHub)
+models/*.h5
+models/*.keras
+
+# Data files (too large for GitHub)
+data/raw/
+data/train/
+data/validation/
+data/test/
+*.jpg
+*.jpeg
+*.png
+
+# Keep folder structure but not images
+!data/train/.gitkeep
+!data/validation/.gitkeep
+!data/test/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# Reports
+models/*.png
+models/*.json
